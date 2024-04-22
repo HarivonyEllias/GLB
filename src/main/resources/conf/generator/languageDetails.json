@@ -219,11 +219,15 @@
                         "findById":"try{\n\treturn GenericDao.findById(null, #Id#);\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
                         "delete": "try{\n\tGenericDao.delete(null, #object#);\n\treturn \"deleted successfully\";\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
                         "update": "try{\n\tGenericDao.update(null, #object#);\n\treturn \"updated successfully\";\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
-                        "save": "try{\n\tGenericDao.save(null, #object#);\n\treturn \"saved successfully\";\n}catch(Exception e){\n\treturn \"Bad request\";\n}"
+                        "save": "try{\n\tGenericDao.save(null, #object#);\n\treturn \"saved successfully\";\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
+                        "findAllWithPagination" :"try{\n\treturn GenericDao.findAll(null, entity,pageSize,offset);\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
+                        "totalCount": "try{\n\treturn GenericDao.getTotalCount(null, entity);\n}catch(Exception e){\n\treturn \"Bad request\";\n}"
                     },
                     "controllerProperty" : {
-                        "path": "RequestMapping(path = \"/?\")",
-                        "get": "Url(method = HttpMethod.GET)\n@Json",
+                        "path": "RequestMapping(path = \"/?\")\n@Cors(allowedOrigin = \"*\")",
+                        "get": "Url(method = HttpMethod.GET,url=\"\")\n@Json",
+                        "getPagination": "Url(method = HttpMethod.GET, url= \"/page\")\n@Json",
+                        "getTotalCount": "Url(method = HttpMethod.GET, url= \"/total-count\")\n@Json",
                         "post": "Url(method = HttpMethod.POST)\n@Json",
                         "put": "Url(method = HttpMethod.PUT)\n@Json",
                         "delete": "Url(method = HttpMethod.DELETE)\n@Json",

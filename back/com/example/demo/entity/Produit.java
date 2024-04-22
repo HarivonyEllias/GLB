@@ -11,7 +11,7 @@ public class Produit {
 	@Column(name = "prix")
 	BigDecimal prix;
 	@Column(name = "date_produit")
-	TimeStamp dateProduit;
+	Timestamp dateProduit;
 	@ForeignKey(mappedBy = "idmarque", foreignType = ForeignType.OneToMany)
 	Marque marque;
 	@Column(name = "description")

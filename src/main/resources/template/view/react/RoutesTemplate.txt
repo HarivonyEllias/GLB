@@ -1,8 +1,5 @@
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import React from 'react';
-import { ${${ROUTES}
-}
-${ROUTES}
-owserRouter as Router, Route, Routes } from 'react-router-dom';
 ${IMPORTS}
 
 function App() {
@@ -10,7 +7,13 @@ function App() {
         <Router>
             <div className="App">
                 <Routes>
-${ROUTES}
+                {sessionStorage.getItem("session") ? (
+                <>
+                    ${ROUTES}
+                </>
+                ) : (
+                    <Route path="/*" element={<Login />} />
+                )}
                 </Routes>
             </div>
         </Router>

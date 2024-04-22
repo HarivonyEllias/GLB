@@ -6,6 +6,7 @@ import com.karana.etu2060.framework.annotation.property.*;
 import com.dao.database.GenericDao;
 
 @RequestMapping(path = "/categorie")
+@Cors(allowedOrigin = "*")
 public class CategorieModel {
 	private Categorie entity = new Categorie();
 
@@ -39,11 +40,29 @@ public class CategorieModel {
 			return "Bad request";
 		}
 	}
-	@Url(method = HttpMethod.GET)
+	@Url(method = HttpMethod.GET,url="")
 	@Json
 	public Object findAll(){
 	 	try{
 			return GenericDao.findAll(null, entity);
+		}catch(Exception e){
+			return "Bad request";
+		}
+	}
+	@Url(method = HttpMethod.GET, url= "/page")
+	@Json
+	public Object findAllWithPagination(@RequestParam(parameterName = "pageSize") int pageSize,@RequestParam(parameterName = "offset") int offset){
+	 	try{
+			return GenericDao.findAll(null, entity,pageSize,offset);
+		}catch(Exception e){
+			return "Bad request";
+		}
+	}
+	@Url(method = HttpMethod.GET, url= "/total-count")
+	@Json
+	public Object getTotalCount(){
+	 	try{
+			return GenericDao.getTotalCount(null, entity);
 		}catch(Exception e){
 			return "Bad request";
 		}

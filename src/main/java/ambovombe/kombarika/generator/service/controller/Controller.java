@@ -127,15 +127,55 @@ public class Controller{
             ) + "\n" + function);
     }
 
+    public String getTotalCount(String table, HashMap<String, String> columns, HashMap<String, String> foreignKeys){
+        String body = "";
+        body += Misc.tabulate(this.getCrudMethod().getTotalCount()
+            .replace("#object#", ObjectUtility.formatToCamelCase(table))
+            .replace("#between#", getIncludedTerms(columns, foreignKeys))
+            .replace("?", ObjectUtility.capitalize(ObjectUtility.formatToCamelCase(table))));
+
+        String function =  this.getLanguageProperties().getMethodSyntax()
+                .replace("#name#", "getTotalCount")
+                .replace("#type#", this.getControllerProperty().getReturnType().replace("?", this.getFrameworkProperties().getListSyntax().replace("?",ObjectUtility.capitalize(ObjectUtility.formatToCamelCase(table)))))
+                .replace("#arg#", "")
+                .replace("#body#", body);
+
+        return Misc.tabulate(this.getLanguageProperties().getAnnotationSyntax().replace("?", 
+            this.getControllerProperty().getGetTotalCount()
+                .replace("?", ObjectUtility.formatToCamelCase(table))
+            ) + "\n" + function);
+    }
+
     public String findById(String table) throws Exception{
         String res = "";
         return res;
+    }
+
+    public String findAllWithPagination(String table, HashMap<String, String> columns, HashMap<String, String> foreignKeys){
+        String body = "";
+        body += Misc.tabulate(this.getCrudMethod().getFindAllWithPagination()
+            .replace("#object#", ObjectUtility.formatToCamelCase(table))
+            .replace("#between#", getIncludedTerms(columns, foreignKeys))
+            .replace("?", ObjectUtility.capitalize(ObjectUtility.formatToCamelCase(table))));
+
+        String function =  this.getLanguageProperties().getMethodSyntax()
+                .replace("#name#", "findAllWithPagination")
+                .replace("#type#", this.getControllerProperty().getReturnType().replace("?", this.getFrameworkProperties().getListSyntax().replace("?",ObjectUtility.capitalize(ObjectUtility.formatToCamelCase(table)))))
+                .replace("#arg#", "@RequestParam(parameterName = \"pageSize\") int pageSize,@RequestParam(parameterName = \"offset\") int offset")
+                .replace("#body#", body);
+
+        return Misc.tabulate(this.getLanguageProperties().getAnnotationSyntax().replace("?", 
+            this.getControllerProperty().getGetPagination()
+                .replace("?", ObjectUtility.formatToCamelCase(table))
+            ) + "\n" + function);
     }
     public String getCrudMethods(String table) throws Exception {
         StringBuilder stringBuilder = new StringBuilder();
         HashMap<String, String> columns = DbService.getDetailsColumn(this.getDbConnection().getConnection(), table);
         HashMap<String, String> foreignKeys = DbService.getForeignKeys(this.getDbConnection(), table);
         String save = save(table);
+        String findWithPagination = findAllWithPagination(table, columns, foreignKeys);
+        String getTotalCount = getTotalCount(table, columns, foreignKeys);
         String findAll = findAll(table, columns, foreignKeys);
         String update = update(table);
         String delete = delete(table);
@@ -146,6 +186,11 @@ public class Controller{
         stringBuilder.append(delete);
         stringBuilder.append("\n");
         stringBuilder.append(findAll);
+        stringBuilder.append("\n");
+        stringBuilder.append(findWithPagination);
+        stringBuilder.append("\n");
+        stringBuilder.append(getTotalCount);
+
         return stringBuilder.toString();
     }
 

@@ -245,6 +245,58 @@ public class CodeGenerator {
         FileUtility.generateFile(path + File.separator + newDirectory, fileName, view);
     }
 
+    public void generateLoginView(
+        String path, 
+        String table,
+        String directory, 
+        String viewType,
+        String url
+    ) throws Exception{
+        String view = "import Button from \"react-bootstrap/Button\";\n\n" +
+              "function Login() {\n\n" +
+              "\tconst handleFormSubmit = (event) => {\n" +
+              "\t\tevent.preventDefault();\n" +
+              "\t\tconst form = event.target;\n" +
+              "\t\tconst formData = new FormData(form);\n" +
+              "\t\tconst data = {};\n\n" +
+              "\t\tfor (let [key, value] of formData.entries()) {\n" +
+              "\t\t\tdata[key] = value;\n" +
+              "\t\t}\n\n" +
+              "\t\tsessionStorage.setItem('session', JSON.stringify(data));\n" +
+              "\t};\n\n" +
+              "\treturn (\n" +
+              "\t\t<>\n" +
+              "\t\t\t<div className=\"container\">\n" +
+              "\t\t\t\t<form action=\"\" method=\"\" id=\"log\" onSubmit={handleFormSubmit}>\n" +
+              "\t\t\t\t\t<div className=\"mb-3\">\n" +
+              "\t\t\t\t\t\t<label className=\"form-label\">Email</label>\n" +
+              "\t\t\t\t\t\t<input className=\"form-control\" type=\"text\" name=\"email\"/>\n" +
+              "\t\t\t\t\t</div>\n" +
+              "\t\t\t\t\t<div className=\"mb-3\">\n" +
+              "\t\t\t\t\t\t<label className=\"form-label\">Mot de passe</label>\n" +
+              "\t\t\t\t\t\t<input className=\"form-control\" type=\"password\" name=\"mdp\"/>\n" +
+              "\t\t\t\t\t</div>\n" +
+              "\t\t\t\t\t<div className=\"mb-3\">\n" +
+              "\t\t\t\t\t\t<Button variant=\"primary\" type=\"submit\">\n" +
+              "\t\t\t\t\t\t\tLogin\n" +
+              "\t\t\t\t\t\t</Button>\n" +
+              "\t\t\t\t\t</div>\n" +
+              "\t\t\t\t</form>\n" +
+              "\t\t\t</div>\n" +
+              "\t\t</>\n" +
+              "\t);\n" +
+              "}\n\n" +
+              "export default Login;";
+
+        FileUtility.createDirectory(directory,path);
+        path = path + File.separator + directory;
+        String fileName = GeneratorService.getFileName(table, this.getViewDetails().getViews().get(viewType).getExtension());
+        String newDirectory = ObjectUtility.formatToCamelCase(table);
+        FileUtility.createDirectory(newDirectory, path);
+        FileUtility.generateFile(path + File.separator + newDirectory, fileName, view);
+    }
+
+
     public void generateRouter(String path, String viewType, String[] tables) throws Exception{
         String route = this.buildRouter(tables, viewType);
         if(route.equals(""))
@@ -252,11 +304,11 @@ public class CodeGenerator {
         String fileName = GeneratorService.getFileName(this.getViewDetails().getViews().get(viewType).getRouteFilename(), this.getViewDetails().getViews().get(viewType).getRouteFileExtension());
         FileUtility.generateFile(path, fileName, route);
     }
-    
+
     public void generateAllEntity(
         String path, 
         String[] tables, 
-        String packageName, 
+        String packageName,
         String entity, 
         String framework
     )  throws Exception{
@@ -302,6 +354,7 @@ public class CodeGenerator {
         String viewType,
         String url
     )  throws Exception{
+        generateLoginView(path, "Login", view, viewType, url); 
         for (String table : tables) {
             generateView(path, table, view, viewType, url); 
         }

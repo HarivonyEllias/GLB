@@ -1,12 +1,10 @@
-import React, {useState, useEffect} from "react";
+    import React, {useState, useEffect} from "react";
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
-import axios from "axios";
 
 
-
-function #entity#(){
-  const url = '#url#';
+function Poweroutage(){
+  const url = 'aaa';
   
   const [loading, setLoading] = useState(true);
   
@@ -24,43 +22,32 @@ function #entity#(){
   const [selectedItem, setSelectedItem] = useState({id:7,nom:"T-shirta"});
 
   const handleSelectItem = (itemKey) => {
-    const itemDetails = #path#.find(item => item.#id# === itemKey);
+    const itemDetails = poweroutage.find(item => item.id === itemKey);
     setSelectedItem(itemDetails);
     handleShow2();
   };
 
-#values#
+	const [poweroutage, setPoweroutage] = useState([]);
+	
+	const [sourceSolaire, setSourceSolaire] = useState([]);
+	
+	
 	
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); 
   const [totalPages, setTotalPages] = useState(2);
-  const [totalCount, setTotalCount] = useState(200);
 
-  const handlePageSizeChange = (event) => {
-      const selectedPageSize = parseInt(event.target.value); // Parse the value to integer
-      if(selectedPageSize<0)setPageSize(totalCount);
-      else setPageSize(selectedPageSize);
-  };
-  useEffect(() => {
-    // Fetch the total count from the server
-    axios.get(url + "#path#/total-count")
-        .then(response => {
-            const totalCount = response.data.totalcount;
-            const calculatedTotalPages = Math.ceil(totalCount / pageSize);
-            setTotalPages(calculatedTotalPages);
-            setTotalCount(totalCount);
-        })
-        .catch(error => {
-            console.error('Error fetching total count:', error);
-        });
-  }, [pageSize]);
 	
 //////// style
 useEffect(() => {
+  // Create a <style> element
   const styleElement = document.createElement('style');
-  styleElement.innerHTML = styless;
+  styleElement.innerHTML = styless; // Set the innerHTML to the styles string
+
+  // Append the <style> element to the document's <head>
   document.head.appendChild(styleElement);
 
+  // Cleanup function to remove the <style> element when the component unmounts
   return () => {
       document.head.removeChild(styleElement);
   };
@@ -81,7 +68,7 @@ useEffect(() => {
       }
   
       try {
-        const response = await fetch(url + '#path#', {
+        const response = await fetch(url + 'poweroutage', {
           method: 'POST',
           body: JSON.stringify(data),
           headers: {
@@ -116,7 +103,7 @@ useEffect(() => {
         }
       }
       try {
-        const response = await fetch(url + '#path#', {
+        const response = await fetch(url + 'poweroutage', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
@@ -141,7 +128,7 @@ useEffect(() => {
       console.log(item);
       if (window.confirm('Are you sure you want to delete this item?')) {
           // Proceed with the delete action
-        const response = await fetch(url + '#path#', {
+        const response = await fetch(url + 'poweroutage', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -162,11 +149,11 @@ useEffect(() => {
 	
   const fetchData = () => {
     console.log((page - 1) * pageSize+"huhu");
-    fetch(`${url}#path#/page?pageSize=${page}&offset=${pageSize}`)
-    // fetch(`${url}#path#/page?pageSize=1&offset=10`)
+    fetch(`${url}poweroutage/page?pageSize=${page}&offset=${pageSize}`)
+    // fetch(`${url}poweroutage/page?pageSize=1&offset=10`)
         .then(response => response.json())
         .then(data => {
-            set#entity#(data);
+            setPoweroutage(data);
             // Assuming your backend provides total number of pages in the response
             // setTotalPages(data.totalPages);
         })
@@ -198,10 +185,60 @@ useEffect(() => {
   };
 
 
-#handleInputSelectChange#
+	const handleSelectSourceSolaireChange = (event) => {
+		setSelectedItem({ ...selectedItem, sourceSolaire: event.target.value });
+	};
+	
+	const handleInputIdChange = (event) => {
+		setSelectedItem({ ...selectedItem, id: event.target.value });
+	};
+	
+	const handleInputDatepoChange = (event) => {
+		setSelectedItem({ ...selectedItem, datepo: event.target.value });
+	};
+	
+	const handleInputDayChange = (event) => {
+		setSelectedItem({ ...selectedItem, day: event.target.value });
+	};
+	
+	
 
 
-#getValues#
+	useEffect(() => {
+		const getPoweroutage = async () => {
+			try {
+				const response = await fetch(url + 'poweroutage');
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					};
+				const data = await response.json();
+				setPoweroutage(data);
+			} catch (error) {
+				setError(error);
+			} finally {
+				setLoading(false);
+			}
+		};
+		getPoweroutage();
+	}, []);
+	useEffect(() => {
+		const getSourceSolaire = async () => {
+			try {
+				const response = await fetch(url + 'sourceSolaire');
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					};
+				const data = await response.json();
+				setSourceSolaire(data);
+			} catch (error) {
+				setError(error);
+			} finally {
+				setLoading(false);
+			}
+		};
+		getSourceSolaire();
+	}, []);
+	
 
   return (
     <div className="container">
@@ -210,12 +247,28 @@ useEffect(() => {
                 <div style={styles.overlay}>
                     <div style={styles.modal}>
                         <div style={styles.modalHeader}>
-                            <h2>Add #entity#</h2>
+                            <h2>Add Poweroutage</h2>
                             <button style={styles.closeButton} onClick={handleClose}>Close</button>
                         </div>
                         <div style={styles.modalBody}>
                             <form action="" method="" id="insert" onSubmit={handleSaveSubmit} style={styles.form}>
-                            #inputInsert#
+                            	<div className="mb-3"> 
+	 	<label className="form-label">Source_solaire</label> 
+	 	<select className="form-control" name="sourceSolaire" id="select-sourceSolaire">
+			{sourceSolaire.map((elt) => (
+				<option value={elt.id}>{elt.nom}</option>
+			))}
+			
+		</select>
+	</div><div className="mb-3"> 
+	 	<label className="form-label">Datepo</label> 
+	 	<input className="form-control" type="date-time local" name="datepo" />
+	</div>
+	<div className="mb-3"> 
+	 	<label className="form-label">Day</label> 
+	 	<input className="form-control" type="text" name="day" />
+	</div>
+	
 
                                 <div className="mb-3">
                                     <button style={styles.button} type="submit">Save Changes</button>
@@ -231,12 +284,33 @@ useEffect(() => {
                 <div style={styles.overlay}>
                     <div style={styles.modal}>
                         <div style={styles.modalHeader}>
-                            <h2>Update #entity#</h2>
+                            <h2>Update Poweroutage</h2>
                             <button style={styles.closeButton} onClick={handleClose2}>Close</button>
                         </div>
                         <div style={styles.modalBody}>
                             <form action="" method="" id="update" onSubmit={handleUpdateSubmit} style={styles.form}>
-                                #inputUpdate#
+                                	<div className="mb-3"> 
+	 	<label className="form-label">id</label> 
+	 	<select className="form-control" name="sourceSolaire">
+			{sourceSolaire.map((elt) => (
+		<option value={elt.id}>{elt.nom}</option>
+	))}
+	
+	
+	</select>
+	</div><div className="mb-3"> 
+	 	<label className="form-label"></label> 
+	 	<input className="form-control" type="hidden" name="id" onChange={handleInputIdChange} value={selectedItem ? selectedItem.id:''} />
+	</div>
+	<div className="mb-3"> 
+	 	<label className="form-label">Datepo</label> 
+	 	<input className="form-control" type="date-time local" name="datepo" onChange={handleInputDatepoChange} value={selectedItem ? selectedItem.datepo:''} />
+	</div>
+	<div className="mb-3"> 
+	 	<label className="form-label">Day</label> 
+	 	<input className="form-control" type="text" name="day" onChange={handleInputDayChange} value={selectedItem ? selectedItem.day:''} />
+	</div>
+	
 
                                 <div className="mb-3">
                                     <button style={styles.button} type="submit">Save Changes</button>
@@ -248,22 +322,30 @@ useEffect(() => {
             )}
 
     <header>
-        <h1>#entity#</h1>
-        <button className="add-button" onClick={handleShow}>Add #entity#</button>
+        <h1>Poweroutage</h1>
+        <button className="add-button" onClick={handleShow}>Add Poweroutage</button>
     </header>
     <main>
         <table>
             <thead>
                 <tr>
-#header#
+			<th> Idsourcesolaire </th>
+			<th> Id </th>
+			<th> Datepo </th>
+			<th> Day </th>
+
                     <th></th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                {#path# && #path#.map((item) => (
-                  <tr key={item.#id#}>
-#tableValue#
+                {poweroutage && poweroutage.map((item) => (
+                  <tr key={item.id}>
+		<td>{item.sourceSolaire.nom}</td>
+		<td>{item.id}</td>
+		<td>{item.datepo}</td>
+		<td>{item.day}</td>
+
                       <td>
                           <button style={style.deleteButton} onClick={() => handleDeleteClick(item)}>Delete</button>
                       </td>
@@ -275,14 +357,8 @@ useEffect(() => {
             </tbody>
         </table>
         <div style={style.pagination}>
-            <select value={pageSize} onChange={handlePageSizeChange}>
-                <option value={-1} selected>All</option>
-                <option value={1}>1</option>
-                <option value={10}>10</option>
-                <option value={30}>30</option>
-            </select>
             <button onClick={handlePreviousPage} disabled={page === 1} className="prev">Previous</button>
-            <span className="span-page">{page+" / "+totalPages}</span>
+            <span className="span-page">{page}</span>
             <button onClick={handleNextPage} disabled={page === totalPages} className="next">Next</button>
         </div>
     </main>
@@ -460,4 +536,4 @@ const styless = `
         margin-right: 5px;
     }
 `;
-export default #entity#;
+export default Poweroutage;

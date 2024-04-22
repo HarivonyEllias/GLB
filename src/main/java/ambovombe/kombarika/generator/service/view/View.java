@@ -206,6 +206,8 @@ public class View {
                     .replace("#element#", ObjectUtility.capitalize(temp))
                      + "\n";
         }
+        //Login Import
+        res += "import Login from \"./Login/Login\";";
         return res;
     }
     public String getRoutes(String[] tables){

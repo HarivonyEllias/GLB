@@ -10,4 +10,6 @@ public class CrudMethod {
     String delete;
     String update;
     String save;
+    String findAllWithPagination;
+    String totalCount;
 }

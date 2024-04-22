@@ -1,6 +1,9 @@
 import React, {useState, useEffect} from "react";
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
+import axios from "axios";
+
+
 
 function Produit(){
   const url = 'http://localhost:8080/demo/';
@@ -18,11 +21,12 @@ function Produit(){
   const handleShow2 = () => setShow2(true);
   
   const [error, setError] = useState(null);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItem, setSelectedItem] = useState({id:7,nom:"T-shirta"});
+
   const handleSelectItem = (itemKey) => {
-    handleShow2();
     const itemDetails = produit.find(item => item.id === itemKey);
     setSelectedItem(itemDetails);
+    handleShow2();
   };
 
 	const [produit, setProduit] = useState([]);
@@ -30,7 +34,41 @@ function Produit(){
 	const [marque, setMarque] = useState([]);
 	
 	
+	
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); 
+  const [totalPages, setTotalPages] = useState(2);
+  const [totalCount, setTotalCount] = useState(200);
 
+  const handlePageSizeChange = (event) => {
+      const selectedPageSize = parseInt(event.target.value); // Parse the value to integer
+      if(selectedPageSize<0)setPageSize(totalCount);
+      else setPageSize(selectedPageSize);
+  };
+  useEffect(() => {
+    // Fetch the total count from the server
+    axios.get(url + "produit/total-count")
+        .then(response => {
+            const totalCount = response.data.totalcount;
+            const calculatedTotalPages = Math.ceil(totalCount / pageSize);
+            setTotalPages(calculatedTotalPages);
+            setTotalCount(totalCount);
+        })
+        .catch(error => {
+            console.error('Error fetching total count:', error);
+        });
+  }, [pageSize]);
+	
+//////// style
+useEffect(() => {
+  const styleElement = document.createElement('style');
+  styleElement.innerHTML = styless;
+  document.head.appendChild(styleElement);
+
+  return () => {
+      document.head.removeChild(styleElement);
+  };
+}, []);
 //////// SAVE
   const handleSaveSubmit = async (event) => {
       event.preventDefault();
@@ -67,13 +105,14 @@ function Produit(){
       }
   };
 
-//////// UPDATE
+//////// UPDATE 
   const handleUpdateSubmit = async (event) => {
       event.preventDefault();
       const form = event.target;
       const formData = new FormData(form);
       const data = {};
       for (let [key, value] of formData.entries()) {
+
         if (form.elements[key].tagName === 'SELECT') {
           data[key] = { id: value };
         } else {
@@ -86,7 +125,7 @@ function Produit(){
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(data)
+          body: JSON.stringify(selectedItem)
         });
   
         if (!response.ok) {
@@ -104,22 +143,64 @@ function Produit(){
   const handleDeleteClick = async (item) => {
     try {
       console.log(item);
-      const response = await fetch(url + 'produit', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(item)
-      });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+      if (window.confirm('Are you sure you want to delete this item?')) {
+          // Proceed with the delete action
+        const response = await fetch(url + 'produit', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(item)
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        // If you want to reload the page after success
+        window.location.reload();
       }
-      // If you want to reload the page after success
-      window.location.reload();
     } catch (error) {
       console.error('Error:', error);
     }
   };
+
+	
+  const fetchData = () => {
+    console.log((page - 1) * pageSize+"huhu");
+    fetch(`${url}produit/page?pageSize=${page}&offset=${pageSize}`)
+    // fetch(`${url}produit/page?pageSize=1&offset=10`)
+        .then(response => response.json())
+        .then(data => {
+            setProduit(data);
+            // Assuming your backend provides total number of pages in the response
+            // setTotalPages(data.totalPages);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+  };
+  useEffect(() => {
+    fetchData();
+  }, [page, pageSize]);
+	
+
+  const handlePreviousPage = () => {
+    if (page > 1) {
+        setPage(page - 1);
+        setCategorie(null);
+        useEffect(() => {
+          fetchData();
+        }, [page, pageSize]);
+    }
+  };
+
+  const handleNextPage = () => {
+      if (page < totalPages) {
+          setPage(page + 1);
+          setCategorie(null);
+          useEffect(() => {
+            fetchData();
+          }, [page, pageSize]);
+      }
+  };
+
 
 	const handleInputPrixChange = (event) => {
 		setSelectedItem({ ...selectedItem, prix: event.target.value });
@@ -154,6 +235,7 @@ function Produit(){
 	};
 	
 	
+
 
 	useEffect(() => {
 		const getProduit = async () => {
@@ -192,23 +274,18 @@ function Produit(){
 	
 
   return (
-    <>
-      <div className="container">
-          <div className="row justify-content-end">
-              <div className="col" >   
-                <div className="row">
-                  <Button variant="primary" onClick={handleShow}>
-                      Add Produit
-                  </Button>
-                </div>    
-
-                  <Modal show={show} onHide={handleClose}>
-                      <Modal.Header closeButton>
-                      <Modal.Title>Add Produit</Modal.Title>
-                      </Modal.Header>
-                      <Modal.Body>
-                          <form action="" method="" id="insert" onSubmit={handleSaveSubmit}>
-	<div className="mb-3"> 
+    <div className="container">
+      {/* Add Modal */}
+      {show && (
+                <div style={styles.overlay}>
+                    <div style={styles.modal}>
+                        <div style={styles.modalHeader}>
+                            <h2>Add Produit</h2>
+                            <button style={styles.closeButton} onClick={handleClose}>Close</button>
+                        </div>
+                        <div style={styles.modalBody}>
+                            <form action="" method="" id="insert" onSubmit={handleSaveSubmit} style={styles.form}>
+                            	<div className="mb-3"> 
 	 	<label className="form-label">Prix</label> 
 	 	<input className="form-control" type="number" name="prix" />
 	</div>
@@ -241,69 +318,27 @@ function Produit(){
 	 	<input className="form-control" type="text" name="devise" />
 	</div>
 	
-                              <div className="mb-3">
-                                <Button variant="primary" type= "submit" >
-                                  Save Changes
-                                </Button>
-                              </div>
-                          </form>
-                      </Modal.Body>
-                      <Modal.Footer>
-                      </Modal.Footer>
-                  </Modal>
-              </div>
-              
-          </div>
-          <div className="row">
-              <table className="table">
-                  <thead id="table-head">
-                      <tr>
-			<th> Prix </th>
-			<th> Date Produit </th>
-			<th> Idmarque </th>
-			<th> Description </th>
-			<th> Id </th>
-			<th> Qualite </th>
-			<th> Nom </th>
-			<th> Devise </th>
 
-                          <th></th>
-                          <th></th>
-                      </tr>
-                  </thead>    
-                  <tbody id="table-body">
-                      {produit.map((item) => (
-                              <tr key={item.id}>
-		<td>{item.prix}</td>
-		<td>{item.dateProduit}</td>
-		<td>{item.marque.nom}</td>
-		<td>{item.description}</td>
-		<td>{item.id}</td>
-		<td>{item.qualite}</td>
-		<td>{item.nom}</td>
-		<td>{item.devise}</td>
+                                <div className="mb-3">
+                                    <button style={styles.button} type="submit">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-                              <td>
-                                  <Button variant="danger" key={item.id} onClick={() => handleDeleteClick(item)}>
-                                      Delete
-                                  </Button>
-                              </td>   
-                              <td>
-                                  <Button variant="warning" key={item.id} onClick={() => handleSelectItem(item.id)}>
-                                      Update
-                                  </Button>
-                              </td>
-                          </tr>
-                      ))}
-                  </tbody>
-              </table>
-              <Modal show={show2} onHide={handleClose2}>
-                  <Modal.Header closeButton>
-                      <Modal.Title>Update Produit</Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>    
-                      <form action="" method="" id="update" onSubmit={handleUpdateSubmit}>
-	<div className="mb-3"> 
+            {/* Update Modal */}
+            {show2 && (
+                <div style={styles.overlay}>
+                    <div style={styles.modal}>
+                        <div style={styles.modalHeader}>
+                            <h2>Update Produit</h2>
+                            <button style={styles.closeButton} onClick={handleClose2}>Close</button>
+                        </div>
+                        <div style={styles.modalBody}>
+                            <form action="" method="" id="update" onSubmit={handleUpdateSubmit} style={styles.form}>
+                                	<div className="mb-3"> 
 	 	<label className="form-label">Prix</label> 
 	 	<input className="form-control" type="number" name="prix" onChange={handleInputPrixChange} value={selectedItem ? selectedItem.prix:''} />
 	</div>
@@ -341,21 +376,243 @@ function Produit(){
 	 	<input className="form-control" type="text" name="devise" onChange={handleInputDeviseChange} value={selectedItem ? selectedItem.devise:''} />
 	</div>
 	
-                          <div className="mb-3">
-                            <Button variant="warning" type= "submit" >
-                              Save Changes
-                            </Button>
-                          </div>
-                      </form>  
-                  </Modal.Body>
-                  <Modal.Footer>
 
-                  </Modal.Footer>
-              </Modal>
-          </div>
-      </div>
-    </>
+                                <div className="mb-3">
+                                    <button style={styles.button} type="submit">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+    <header>
+        <h1>Produit</h1>
+        <button className="add-button" onClick={handleShow}>Add Produit</button>
+    </header>
+    <main>
+        <table>
+            <thead>
+                <tr>
+			<th> Prix </th>
+			<th> Date Produit </th>
+			<th> Idmarque </th>
+			<th> Description </th>
+			<th> Id </th>
+			<th> Qualite </th>
+			<th> Nom </th>
+			<th> Devise </th>
+
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {produit && produit.map((item) => (
+                  <tr key={item.id}>
+		<td>{item.prix}</td>
+		<td>{item.dateProduit}</td>
+		<td>{item.marque.nom}</td>
+		<td>{item.description}</td>
+		<td>{item.id}</td>
+		<td>{item.qualite}</td>
+		<td>{item.nom}</td>
+		<td>{item.devise}</td>
+
+                      <td>
+                          <button style={style.deleteButton} onClick={() => handleDeleteClick(item)}>Delete</button>
+                      </td>
+                      <td>
+                          <button style={style.updateButton} onClick={() => handleSelectItem(item.id)}>Update</button>
+                      </td>
+                  </tr>
+              ))}
+            </tbody>
+        </table>
+        <div style={style.pagination}>
+            <select value={pageSize} onChange={handlePageSizeChange}>
+                <option value={-1} selected>All</option>
+                <option value={1}>1</option>
+                <option value={10}>10</option>
+                <option value={30}>30</option>
+            </select>
+            <button onClick={handlePreviousPage} disabled={page === 1} className="prev">Previous</button>
+            <span className="span-page">{page+" / "+totalPages}</span>
+            <button onClick={handleNextPage} disabled={page === totalPages} className="next">Next</button>
+        </div>
+    </main>
+</div>
+    
   )
 }
 
+const style = {
+  addButton: {
+      marginBottom: '20px',
+  },
+  deleteButton: {
+      cursor: 'pointer',
+      padding: '5px 10px',
+      borderRadius: '3px',
+      border: 'none',
+      color: '#fff',
+      backgroundColor: '#dc3545',
+  },
+  updateButton: {
+      cursor: 'pointer',
+      padding: '5px 10px',
+      borderRadius: '3px',
+      border: 'none',
+      color: '#fff',
+      backgroundColor: '#007bff',
+  },
+  pagination: {
+      marginTop: '20px',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
+};
+const styles = {
+  overlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
+  modal: {
+      backgroundColor: '#fff',
+      padding: '20px',
+      borderRadius: '5px',
+      boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)',
+      width: '400px',
+  },
+  modalHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '20px',
+  },
+  closeButton: {
+      backgroundColor: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      fontSize: '16px',
+      color: '#555',
+  },
+  modalBody: {
+      marginBottom: '20px',
+  },
+};
+const styless = `
+    .span-page{
+      width: 50px;
+      text-align: center;
+      background-color: #e7e7e7;
+    }
+    .prev{
+      width: 100px;
+      background-color: #007bff;
+      border-radius: 5px;
+      color: white;
+    }
+    .next{
+      width: 100px;
+      background-color: #007bff;
+      border-radius: 5px;
+      color: white;
+    }
+    .container {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    h1 {
+        font-size: 24px;
+        margin: 0;
+    }
+    
+    .add-button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    th, td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+    }
+    
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    
+    .delete-button, .update-button {
+        padding: 5px 10px;
+        font-size: 14px;
+        border: none;
+        border-radius: 5px;
+        background-color: #dc3545;
+        color: #fff;
+        cursor: pointer;
+        margin-right: 5px;
+    }
+    
+    .update-button {
+        background-color: #ffc107;
+    }
+    
+    .pagination {
+        margin-top: 20px;
+    }
+    
+    .pagination button {
+        padding: 8px 16px;
+        font-size: 14px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        margin-right: 5px;
+    }
+    
+    .pagination button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+    
+    .pagination span {
+        padding: 8px 16px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #fff;
+        color: #000;
+        margin-right: 5px;
+    }
+`;
 export default Produit;

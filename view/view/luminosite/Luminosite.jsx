@@ -1,12 +1,10 @@
-import React, {useState, useEffect} from "react";
+    import React, {useState, useEffect} from "react";
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
-import axios from "axios";
 
 
-
-function #entity#(){
-  const url = '#url#';
+function Luminosite(){
+  const url = 'aaa';
   
   const [loading, setLoading] = useState(true);
   
@@ -24,43 +22,30 @@ function #entity#(){
   const [selectedItem, setSelectedItem] = useState({id:7,nom:"T-shirta"});
 
   const handleSelectItem = (itemKey) => {
-    const itemDetails = #path#.find(item => item.#id# === itemKey);
+    const itemDetails = luminosite.find(item => item.id === itemKey);
     setSelectedItem(itemDetails);
     handleShow2();
   };
 
-#values#
+	const [luminosite, setLuminosite] = useState([]);
+	
+	
 	
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10); 
   const [totalPages, setTotalPages] = useState(2);
-  const [totalCount, setTotalCount] = useState(200);
 
-  const handlePageSizeChange = (event) => {
-      const selectedPageSize = parseInt(event.target.value); // Parse the value to integer
-      if(selectedPageSize<0)setPageSize(totalCount);
-      else setPageSize(selectedPageSize);
-  };
-  useEffect(() => {
-    // Fetch the total count from the server
-    axios.get(url + "#path#/total-count")
-        .then(response => {
-            const totalCount = response.data.totalcount;
-            const calculatedTotalPages = Math.ceil(totalCount / pageSize);
-            setTotalPages(calculatedTotalPages);
-            setTotalCount(totalCount);
-        })
-        .catch(error => {
-            console.error('Error fetching total count:', error);
-        });
-  }, [pageSize]);
 	
 //////// style
 useEffect(() => {
+  // Create a <style> element
   const styleElement = document.createElement('style');
-  styleElement.innerHTML = styless;
+  styleElement.innerHTML = styless; // Set the innerHTML to the styles string
+
+  // Append the <style> element to the document's <head>
   document.head.appendChild(styleElement);
 
+  // Cleanup function to remove the <style> element when the component unmounts
   return () => {
       document.head.removeChild(styleElement);
   };
@@ -81,7 +66,7 @@ useEffect(() => {
       }
   
       try {
-        const response = await fetch(url + '#path#', {
+        const response = await fetch(url + 'luminosite', {
           method: 'POST',
           body: JSON.stringify(data),
           headers: {
@@ -116,7 +101,7 @@ useEffect(() => {
         }
       }
       try {
-        const response = await fetch(url + '#path#', {
+        const response = await fetch(url + 'luminosite', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
@@ -141,7 +126,7 @@ useEffect(() => {
       console.log(item);
       if (window.confirm('Are you sure you want to delete this item?')) {
           // Proceed with the delete action
-        const response = await fetch(url + '#path#', {
+        const response = await fetch(url + 'luminosite', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -162,11 +147,11 @@ useEffect(() => {
 	
   const fetchData = () => {
     console.log((page - 1) * pageSize+"huhu");
-    fetch(`${url}#path#/page?pageSize=${page}&offset=${pageSize}`)
-    // fetch(`${url}#path#/page?pageSize=1&offset=10`)
+    fetch(`${url}luminosite/page?pageSize=${page}&offset=${pageSize}`)
+    // fetch(`${url}luminosite/page?pageSize=1&offset=10`)
         .then(response => response.json())
         .then(data => {
-            set#entity#(data);
+            setLuminosite(data);
             // Assuming your backend provides total number of pages in the response
             // setTotalPages(data.totalPages);
         })
@@ -198,10 +183,39 @@ useEffect(() => {
   };
 
 
-#handleInputSelectChange#
+	const handleInputCapaciteChange = (event) => {
+		setSelectedItem({ ...selectedItem, capacite: event.target.value });
+	};
+	
+	const handleInputDateLuminositeChange = (event) => {
+		setSelectedItem({ ...selectedItem, dateLuminosite: event.target.value });
+	};
+	
+	const handleInputIdChange = (event) => {
+		setSelectedItem({ ...selectedItem, id: event.target.value });
+	};
+	
+	
 
 
-#getValues#
+	useEffect(() => {
+		const getLuminosite = async () => {
+			try {
+				const response = await fetch(url + 'luminosite');
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					};
+				const data = await response.json();
+				setLuminosite(data);
+			} catch (error) {
+				setError(error);
+			} finally {
+				setLoading(false);
+			}
+		};
+		getLuminosite();
+	}, []);
+	
 
   return (
     <div className="container">
@@ -210,12 +224,20 @@ useEffect(() => {
                 <div style={styles.overlay}>
                     <div style={styles.modal}>
                         <div style={styles.modalHeader}>
-                            <h2>Add #entity#</h2>
+                            <h2>Add Luminosite</h2>
                             <button style={styles.closeButton} onClick={handleClose}>Close</button>
                         </div>
                         <div style={styles.modalBody}>
                             <form action="" method="" id="insert" onSubmit={handleSaveSubmit} style={styles.form}>
-                            #inputInsert#
+                            	<div className="mb-3"> 
+	 	<label className="form-label">Capacite</label> 
+	 	<input className="form-control" type="number" name="capacite" />
+	</div>
+	<div className="mb-3"> 
+	 	<label className="form-label">Date Luminosite</label> 
+	 	<input className="form-control" type="date-time local" name="dateLuminosite" />
+	</div>
+	
 
                                 <div className="mb-3">
                                     <button style={styles.button} type="submit">Save Changes</button>
@@ -231,12 +253,24 @@ useEffect(() => {
                 <div style={styles.overlay}>
                     <div style={styles.modal}>
                         <div style={styles.modalHeader}>
-                            <h2>Update #entity#</h2>
+                            <h2>Update Luminosite</h2>
                             <button style={styles.closeButton} onClick={handleClose2}>Close</button>
                         </div>
                         <div style={styles.modalBody}>
                             <form action="" method="" id="update" onSubmit={handleUpdateSubmit} style={styles.form}>
-                                #inputUpdate#
+                                	<div className="mb-3"> 
+	 	<label className="form-label">Capacite</label> 
+	 	<input className="form-control" type="number" name="capacite" onChange={handleInputCapaciteChange} value={selectedItem ? selectedItem.capacite:''} />
+	</div>
+	<div className="mb-3"> 
+	 	<label className="form-label">Date Luminosite</label> 
+	 	<input className="form-control" type="date-time local" name="dateLuminosite" onChange={handleInputDateLuminositeChange} value={selectedItem ? selectedItem.dateLuminosite:''} />
+	</div>
+	<div className="mb-3"> 
+	 	<label className="form-label"></label> 
+	 	<input className="form-control" type="hidden" name="id" onChange={handleInputIdChange} value={selectedItem ? selectedItem.id:''} />
+	</div>
+	
 
                                 <div className="mb-3">
                                     <button style={styles.button} type="submit">Save Changes</button>
@@ -248,22 +282,28 @@ useEffect(() => {
             )}
 
     <header>
-        <h1>#entity#</h1>
-        <button className="add-button" onClick={handleShow}>Add #entity#</button>
+        <h1>Luminosite</h1>
+        <button className="add-button" onClick={handleShow}>Add Luminosite</button>
     </header>
     <main>
         <table>
             <thead>
                 <tr>
-#header#
+			<th> Capacite </th>
+			<th> Date Luminosite </th>
+			<th> Id </th>
+
                     <th></th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                {#path# && #path#.map((item) => (
-                  <tr key={item.#id#}>
-#tableValue#
+                {luminosite && luminosite.map((item) => (
+                  <tr key={item.id}>
+		<td>{item.capacite}</td>
+		<td>{item.dateLuminosite}</td>
+		<td>{item.id}</td>
+
                       <td>
                           <button style={style.deleteButton} onClick={() => handleDeleteClick(item)}>Delete</button>
                       </td>
@@ -275,14 +315,8 @@ useEffect(() => {
             </tbody>
         </table>
         <div style={style.pagination}>
-            <select value={pageSize} onChange={handlePageSizeChange}>
-                <option value={-1} selected>All</option>
-                <option value={1}>1</option>
-                <option value={10}>10</option>
-                <option value={30}>30</option>
-            </select>
             <button onClick={handlePreviousPage} disabled={page === 1} className="prev">Previous</button>
-            <span className="span-page">{page+" / "+totalPages}</span>
+            <span className="span-page">{page}</span>
             <button onClick={handleNextPage} disabled={page === totalPages} className="next">Next</button>
         </div>
     </main>
@@ -460,4 +494,4 @@ const styless = `
         margin-right: 5px;
     }
 `;
-export default #entity#;
+export default Luminosite;

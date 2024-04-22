@@ -22,7 +22,7 @@ function #entity#(){
   const [selectedItem, setSelectedItem] = useState({id:7,nom:"T-shirta"});
 
   const handleSelectItem = (itemKey) => {
-    const itemDetails = #path#.find(item => item.id === itemKey);
+    const itemDetails = #path#.find(item => item.#id# === itemKey);
     setSelectedItem(itemDetails);
     handleShow2();
   };

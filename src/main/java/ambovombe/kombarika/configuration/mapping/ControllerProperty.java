@@ -7,6 +7,8 @@ import lombok.Setter;
 public class ControllerProperty {
     String path;
     String get;
+    String getPagination;
+    String getTotalCount;
     String post;
     String put;
     String delete;
